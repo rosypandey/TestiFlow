@@ -11,7 +11,6 @@
 
 
 
-//create custom post type for this plugin
 function plg_testimonials_post_type() {
     $labels = array(
         'name' => 'TestiFlow',
