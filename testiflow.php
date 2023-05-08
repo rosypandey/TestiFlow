@@ -40,10 +40,10 @@ function testiflow_post_type() {
 }
 add_action('init', 'testiflow_post_type');
 
-/**
- * Registers `categorie` taxonomy.
+ /**
+  * Registers `categorie` taxonomy.
  * @return void
- */
+  */
 
 function testiflow_add_new_taxonomy(){
     $labels = array(
@@ -70,7 +70,7 @@ function testiflow_add_new_taxonomy(){
 }
 add_action( 'init', 'testiflow_add_new_taxonomy' );
 
-/**
+ /**
  * Registers `PERSONAL INFO` metabox.
  * @return void
  */
@@ -111,15 +111,13 @@ function testiflow_personal_info_metabox_callback( $post ) {
   <?php
 }
 
-/**
+ /**
  * Save the metadata.
-*/
-
+ */
 function testiflow_save_metadata( $post_id ) {
     if( ! wp_verify_nonce( $_POST['metabox_nonce'],'metabox_form' ) ) {
         return;
     };
-
     if ( isset( $_POST['name'] ) ) {
         update_post_meta( $post_id, '_name', sanitize_text_field( wp_unslash( $_POST['name'] ) ) );
     }
@@ -133,10 +131,9 @@ function testiflow_save_metadata( $post_id ) {
 }
 add_action( 'save_post', 'testiflow_save_metadata' );
 
-/**
+ /**
  * Display the data of metabox field.
-*/
-
+ */
 function testiflow_custom_post_type_shortcode( $atts ) {
     $args =  array(
     'post_type' => 'testiflow',
@@ -160,15 +157,15 @@ function testiflow_custom_post_type_shortcode( $atts ) {
                     $value1= get_post_meta( get_the_ID(),"_name", true );
                     $value2= get_post_meta( get_the_ID() ,"_email", true );
                     $value3= get_post_meta( get_the_ID() ,"_address", true );
-            ?>
-                <tr>
-                    <td><?php echo $value1;?></td>
-                    <td><?php echo $value2; ?></td>
-                    <td><?php echo $value3; ?></td>
-        
-                </tr>
-                <?php
-                  }
+                 ?>
+                    <tr>
+                        <td><?php echo $value1;?></td>
+                        <td><?php echo $value2; ?></td>
+                        <td><?php echo $value3; ?></td>
+            
+                    </tr>
+                 <?php
+                }
                 wp_reset_postdata();
               }
                 ?>
@@ -180,9 +177,9 @@ function testiflow_custom_post_type_shortcode( $atts ) {
 }
 add_shortcode( 'custom_posts', 'testiflow_custom_post_type_shortcode' );
 
-/**
+ /**
  * Add custom column to backend list.
-*/
+ */
 
 function testiflow_custom_metabox_column($columns){
     $columns['name']='name';
@@ -193,10 +190,9 @@ function testiflow_custom_metabox_column($columns){
 } 
 add_filter('manage_testiflow_posts_columns','testiflow_custom_metabox_column');
 
-/**
+ /**
  *Display the column field data in custom column.
-*/
-
+ */
 function testiflow_display_custom_metabox_value($column,$post_id){
     if ($column === 'name') {
              $value = get_post_meta($post_id, '_name', true);
@@ -213,18 +209,14 @@ function testiflow_display_custom_metabox_value($column,$post_id){
 }
 add_action('manage_testiflow_posts_custom_column', 'testiflow_display_custom_metabox_value',10,2);
 
-/**
+ /**
  *Display the excerpt column data in backend.
-*/
-
+ */
 function testiflow_custom_excerpt_column( $columns ) {
     $columns['excerpt'] ='Excerpt';
     return $columns;
 }
 add_filter( 'manage_testiflow_posts_columns', 'testiflow_custom_excerpt_column' );
-
-
-
 
 function testiflow_custom_excerpt_column_content( $column_name, $post_id ) {
 
@@ -234,20 +226,9 @@ function testiflow_custom_excerpt_column_content( $column_name, $post_id ) {
 }
 add_action( 'manage_testiflow_posts_custom_column', 'testiflow_custom_excerpt_column_content',10,2);
 
-
-
-/**
- * Enqueue the css file.
-*/
-
-function testiflow_my_enqueue_styles() {
-    wp_enqueue_style( 'my-style', plugins_url( '/css/mystyle.css', __FILE__ ) );
-}
-add_action( 'wp_enqueue_scripts', 'testiflow_my_enqueue_styles' );
-
-/**
+ /**
  * Displays all posts in frontend based on categorie.
-*/
+ */
 
 function testiflow_cat_listing_func($atts)
 {$atts = shortcode_atts(
@@ -291,6 +272,7 @@ function testiflow_cat_listing_func($atts)
              
             <?php
         endwhile;
+        wp_reset_postdata();
     endif;
     ?>
     </div>
@@ -304,9 +286,9 @@ function testiflow_cat_listing_func($atts)
 }
 add_shortcode('testiflow_lists','testiflow_cat_listing_func');
 
-/**
+ /**
  * Add a custom column to the Testimonials list table for the feature ima.
-*/
+ */
 
 add_filter( 'manage_testiflow_posts_columns', 'testiflow_add_testimonial_image_column' );
 function testiflow_add_testimonial_image_column( $columns ) {
@@ -314,9 +296,9 @@ function testiflow_add_testimonial_image_column( $columns ) {
     return $columns;
 }
 
-/**
+ /**
  * Display the feature image in the custom column on the Testimonials list table.
-*/
+ */
 
 add_action( 'manage_testiflow_posts_custom_column', 'testiflow_display_testimonial_image_column', 10, 2 );
 function testiflow_display_testimonial_image_column( $column, $post_id ) {
@@ -326,22 +308,26 @@ function testiflow_display_testimonial_image_column( $column, $post_id ) {
     }
 }
 
-/**
+ /**
  * Enqueue  cdn links of bootstrap.
-*/
-
+ */
 function testiflow_mytestimonial_stylesheet()
 {
-    wp_enqueue_style( 'myCSS', plugins_url( 'mystyle.css', __FILE__ ) );
+    wp_enqueue_style( 'myCSS', plugins_url( 'assets/mystyle.css', __FILE__ ) );
     wp_enqueue_style( 'myplugin-style', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' );
     wp_enqueue_script( 'myplugin-script', 'https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js', null, null, true );
+    // Swiper slider cdn.
+    wp_enqueue_style( 'swipercss-cdn', 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css' );
+    wp_enqueue_script( 'swiperjs_cdn', 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js', null, null, true );
+    //custom js
+    wp_enqueue_script( 'myscript', plugins_url( 'assets/myscript.js', __FILE__ ), array('jquery'), null, true );
+
 }
 add_action('wp_enqueue_scripts', 'testiflow_mytestimonial_stylesheet');
 
-/**
+ /**
  * function to create the setting submenu.
-*/
-
+ */
 function testiflow_setting_menu_page() //menu page which have settings options for this plugin
 {
     add_submenu_page(
@@ -356,10 +342,9 @@ function testiflow_setting_menu_page() //menu page which have settings options f
 }
 add_action( 'admin_menu', 'testiflow_setting_menu_page' );
 
-/**
+ /**
  * Callback function of setting sub menu.
-*/
-
+ */
 function testiflow_setting_callback_func(){
   
    ?>
@@ -376,33 +361,14 @@ function testiflow_setting_callback_func(){
         $Postdata=[];
         $Postdata['user_email']=isset($_POST['enable_email']);
         $Postdata['user_address']=isset($_POST['enable_address']);
-        
-    }
-    
+    } 
 }
 
-/**
- * link the javacript file and slider cdn link.
-*/
-
-function testiflow_testimonial_stylesheet()
-{
-  
-    // Swiper slider cdn.
-    wp_enqueue_style( 'swipercss-cdn', 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css' );
-    wp_enqueue_script( 'swiperjs_cdn', 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js', null, null, true );
-    //custom js
-    wp_enqueue_script( 'myscript', plugins_url( 'myscript.js', __FILE__ ), array('jquery'), null, true );
-}
-add_action('wp_enqueue_scripts', 'testiflow_testimonial_stylesheet');
-
-/**
+ /**
  * Shortcode to display the slider.
-*/
-
+ */
 function testiflow_slider_func()
 {
-
     $args = array(
         'post_type' => 'testiflow',
         'posts_per_page' => 5,
@@ -421,10 +387,9 @@ function testiflow_slider_func()
 }
 add_shortcode('slider_lists','testiflow_slider_func');
 
-   /**
-    * To add testimonials through form.
-    */
-
+/**
+ * To add testimonials through form.
+ */
 function testiflow_add_testimonial_form_shortcode() {
     ob_start();
     ?>
@@ -463,7 +428,7 @@ function testiflow_add_testimonial_form_shortcode() {
     $form = ob_get_clean();
     return $form;
 }
-add_shortcode('add_testimonial_shortcode', 'testiflow_add_testimonial_form_shortcode');
+add_shortcode('testiflow_display_form', 'testiflow_add_testimonial_form_shortcode');
 
 /**
  *  Handle the form submission
@@ -471,7 +436,6 @@ add_shortcode('add_testimonial_shortcode', 'testiflow_add_testimonial_form_short
  */
 
 function testiflow_add_testimonial_form_submit(){
-   
     if (isset($_POST['submit_testimonial'])) {
         if( ! wp_verify_nonce( $_POST['mytestimonial_nonce'],'testimonial_form' ) ) {
             return;
@@ -509,7 +473,6 @@ add_action('init','testiflow_add_testimonial_form_submit');
  * @return array
  * @param array $columns Array of column.
  */
-
 function testiflow_add_testimonial_columns($columns) {
     $columns['company_name'] = 'Company Name';
     $columns['company_website'] = 'Company Website';
@@ -521,7 +484,6 @@ add_filter('manage_testiflow_posts_columns', 'testiflow_add_testimonial_columns'
 /**
  * Displays the custom column in list of testimonials.
  */
-
 function testiflow_add_data_testimonial_columns($column_name, $post_id) {
     if ($column_name == 'company_name') {
         $company_name = get_post_meta($post_id, 'company_name', true);
@@ -544,43 +506,37 @@ add_action('manage_testiflow_posts_custom_column', 'testiflow_add_data_testimoni
 /**
  * Shortcode to display the testimonials in diffrent view
  * @return array
- * @param array The user defined shortcode attributes..
+ * @param array $atts shortcode attributes.
  */
-
 function testiflow_display_func( $atts ) {
     $atts = shortcode_atts( array(
         'view' => 'list', // default view is list
-        'per_row' => 1, // default number of items per row is 1
-
     ), $atts );
 
     $args = array(
-        'post_type' => 'testiflow',
-        'post_status' => 'publish',
-        'per_row' => $atts['per_row'],
-     
+        'post_type' =>  'testiflow',
+        'post_status'=>'publish',
+        'post_per_page'=>'4',
+
     );
 
     $get_user_email=get_option('post_data');
     $get_user_address=get_option('post_data');
     ob_start();
     $query = new WP_Query( $args );
-    
-
     if ( $query->have_posts() ) {
         if ( $atts['view'] === 'grid' ) {
-          include( 'grid.php' );
+          include( 'templates/grid.php' );
         } elseif( $atts['view'] === 'list' ) {
-          include( 'list.php' ); 
+          include( 'templates/list.php' ); 
         }elseif( $atts['view'] === 'slider') {
-            include('slider.php');
+            include('templates/slider.php');
         }
     }
-
     $display = ob_get_clean();
     return $display;
 }
-add_shortcode( 'display_lists', 'testiflow_display_func' );
+add_shortcode( 'testiflow_display_lists', 'testiflow_display_func' );
 
 
 
