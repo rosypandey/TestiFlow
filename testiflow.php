@@ -33,7 +33,6 @@ function testiflow_post_type() {
          'show_in_rest' => true,
          'show_in_menu' => true,
          'show_admin_column' => true,
-      
          'supports' => array( 'title', 'editor', 'thumbnail','excerpt','auther','comments' ),
      );
     register_post_type('testiflow', $args);
@@ -91,9 +90,9 @@ add_action('add_meta_boxes', 'testiflow_add_custom_meta_box');
  */
 function testiflow_personal_info_metabox_callback( $post ) {
  
-    $value1= get_post_meta( $post->ID,"_name", true );
-    $value2= get_post_meta( $post->ID ,"_email", true );
-    $value3= get_post_meta( $post->ID ,"_address", true );
+    $value1= get_post_meta( $post->ID,"info_name", true );
+    $value2= get_post_meta( $post->ID ,"info_email", true );
+    $value3= get_post_meta( $post->ID ,"info_address", true );
     ?>
     <form method="POST" name="formdata">
         <label for="name"><?php _e( 'Name:', 'testiflow' ); ?></label>
@@ -115,33 +114,31 @@ function testiflow_personal_info_metabox_callback( $post ) {
  * Save the metadata.
  */
 function testiflow_save_metadata( $post_id ) {
-    if( ! wp_verify_nonce( $_POST['metabox_nonce'],'metabox_form' ) ) {
+    if( ! wp_verify_nonce($_POST['metabox_nonce'],'metabox_form' ) ) {
         return;
     };
     if ( isset( $_POST['name'] ) ) {
-        update_post_meta( $post_id, '_name', sanitize_text_field( wp_unslash( $_POST['name'] ) ) );
+        update_post_meta( $post_id, 'info_name', sanitize_text_field( wp_unslash( $_POST['name'] ) ) );
     }
     if ( isset( $_POST['email'] ) ) {
-        update_post_meta( $post_id, '_email', sanitize_text_field( wp_unslash( $_POST['email'] ) ) );
+        update_post_meta( $post_id, 'info_email', sanitize_text_field( wp_unslash( $_POST['email'] ) ) );
     }
     if ( isset( $_POST['address'] ) ) {
-        update_post_meta( $post_id, '_address', sanitize_text_field( wp_unslash( $_POST['address'] ) ) );
+        update_post_meta( $post_id, 'info_address', sanitize_text_field( wp_unslash( $_POST['address'] ) ) );
     }
 
 }
 add_action( 'save_post', 'testiflow_save_metadata' );
 
  /**
- * Display the data of metabox field.
+ *Shortcode to display the data of metabox field.
  */
 function testiflow_custom_post_type_shortcode( $atts ) {
     $args =  array(
     'post_type' => 'testiflow',
        'post_per_page'=>10,
        'publish_status'=>'Published');
-   
     $query = new WP_Query($args);
-
     ob_start();
     ?>
         <table class="tabledata">
@@ -154,15 +151,14 @@ function testiflow_custom_post_type_shortcode( $atts ) {
             if ( $query->have_posts() ) {
                 while ( $query->have_posts() ) {
                     $query->the_post();
-                    $value1= get_post_meta( get_the_ID(),"_name", true );
-                    $value2= get_post_meta( get_the_ID() ,"_email", true );
-                    $value3= get_post_meta( get_the_ID() ,"_address", true );
+                    $value1= get_post_meta( get_the_ID(),"info_name", true );
+                    $value2= get_post_meta( get_the_ID() ,"info_email", true );
+                    $value3= get_post_meta( get_the_ID() ,"info_address", true );
                  ?>
                     <tr>
                         <td><?php echo $value1;?></td>
                         <td><?php echo $value2; ?></td>
                         <td><?php echo $value3; ?></td>
-            
                     </tr>
                  <?php
                 }
@@ -173,41 +169,9 @@ function testiflow_custom_post_type_shortcode( $atts ) {
     <?php
     $output=ob_get_clean();
     return $output;
-   
 }
-add_shortcode( 'custom_posts', 'testiflow_custom_post_type_shortcode' );
+add_shortcode( 'testiflow_custom_posts', 'testiflow_custom_post_type_shortcode' );
 
- /**
- * Add custom column to backend list.
- */
-
-function testiflow_custom_metabox_column($columns){
-    $columns['name']='name';
-    $columns['email']='email';
-    $columns['address']='address';
-    
-    return $columns;
-} 
-add_filter('manage_testiflow_posts_columns','testiflow_custom_metabox_column');
-
- /**
- *Display the column field data in custom column.
- */
-function testiflow_display_custom_metabox_value($column,$post_id){
-    if ($column === 'name') {
-             $value = get_post_meta($post_id, '_name', true);
-              echo $value;
-           }
-           if ($column === 'email') {
-            $value = get_post_meta($post_id, '_email', true);
-             echo $value;
-          }if ($column === 'address') {
-            $value = get_post_meta($post_id, '_address', true);
-             echo $value;
-          }
-
-}
-add_action('manage_testiflow_posts_custom_column', 'testiflow_display_custom_metabox_value',10,2);
 
  /**
  *Display the excerpt column data in backend.
@@ -227,7 +191,7 @@ function testiflow_custom_excerpt_column_content( $column_name, $post_id ) {
 add_action( 'manage_testiflow_posts_custom_column', 'testiflow_custom_excerpt_column_content',10,2);
 
  /**
- * Displays all posts in frontend based on categorie.
+ * Shortcode tp displays all posts in frontend based on categorie.
  */
 
 function testiflow_cat_listing_func($atts)
@@ -246,8 +210,7 @@ function testiflow_cat_listing_func($atts)
                 'field' => 'slug',
                 'terms' => $atts['category_name'],
             ),
-        ),
-        
+        ),  
     );
     ob_start();
     $query = new WP_Query($args);
@@ -258,18 +221,15 @@ function testiflow_cat_listing_func($atts)
     if($query->have_posts()):
         while($query->have_posts()) :
             $query->the_post() ;
-           
-            ?>
-              
+            ?> 
              <div class="col-sm-6 myborder">
                 <div class="title"><?php echo get_the_title(); ?><br>
                 <div class="thumbnail">
                 <?php echo get_the_post_thumbnail();?>
                 </div>
-                <?php echo get_post_meta( get_the_ID(),"_name", true );?>
+                <?php echo get_post_meta( get_the_ID(),"info_name", true );?>
                 <?php echo get_the_content(); ?></div>
             </div>
-             
             <?php
         endwhile;
         wp_reset_postdata();
@@ -281,10 +241,8 @@ function testiflow_cat_listing_func($atts)
     <?php
     $display=ob_get_clean();
     return $display;
-
-
 }
-add_shortcode('testiflow_lists','testiflow_cat_listing_func');
+add_shortcode('testiflow_cat_lists','testiflow_cat_listing_func');
 
  /**
  * Add a custom column to the Testimonials list table for the feature ima.
@@ -309,7 +267,7 @@ function testiflow_display_testimonial_image_column( $column, $post_id ) {
 }
 
  /**
- * Enqueue  cdn links of bootstrap.
+ * Enqueue css file,js file and cdn links of bootstrap for slider.
  */
 function testiflow_mytestimonial_stylesheet()
 {
@@ -319,9 +277,8 @@ function testiflow_mytestimonial_stylesheet()
     // Swiper slider cdn.
     wp_enqueue_style( 'swipercss-cdn', 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css' );
     wp_enqueue_script( 'swiperjs_cdn', 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js', null, null, true );
-    //custom js
+    // Custom js.
     wp_enqueue_script( 'myscript', plugins_url( 'assets/myscript.js', __FILE__ ), array('jquery'), null, true );
-
 }
 add_action('wp_enqueue_scripts', 'testiflow_mytestimonial_stylesheet');
 
@@ -346,22 +303,21 @@ add_action( 'admin_menu', 'testiflow_setting_menu_page' );
  * Callback function of setting sub menu.
  */
 function testiflow_setting_callback_func(){
-  
    ?>
    <form method='post'>
-    <input type="checkbox" id="checkbox" name="enable_email">
-    <label for="checkbox">Enable user email</label><br>
-    <input type="checkbox" id="checkbox2" name="enable_address">
-    <label for="checkbox2">Enable user address</label><br>
-    <input type='submit'  id='submit' value='save changes' name='save'/>
-</form>
+        <input type="checkbox" id="checkbox" name="enable_email">
+        <label for="checkbox">Enable user email</label><br>
+        <input type="checkbox" id="checkbox2" name="enable_address">
+        <label for="checkbox2">Enable user address</label><br>
+        <input type='submit'  id='submit' value='save changes' name='save'/>
+    </form>
     <?php
     // To save datas in database.
     if( isset($_POST['save']) ) {
-        $Postdata=[];
-        $Postdata['user_email']=isset($_POST['enable_email']);
-        $Postdata['user_address']=isset($_POST['enable_address']);
-    } 
+        $Postdata = array();
+        $Postdata['user_email'] = isset($_POST['enable_email']) ? sanitize_email($_POST['enable_email']) : '';
+        $Postdata['user_address'] = isset($_POST['enable_address']) ? sanitize_text_field(wp_unslash($_POST['enable_address'])) : '';
+    }
 }
 
  /**
@@ -373,7 +329,6 @@ function testiflow_slider_func()
         'post_type' => 'testiflow',
         'posts_per_page' => 5,
         'publish_status' => 'Publish',
-   
     );
     $get_user_email=get_option('post_data');
     $get_user_address=get_option('post_data');
@@ -385,7 +340,7 @@ function testiflow_slider_func()
 
 
 }
-add_shortcode('slider_lists','testiflow_slider_func');
+add_shortcode('testiflow_slider_lists','testiflow_slider_func');
 
 /**
  * To add testimonials through form.
@@ -393,38 +348,34 @@ add_shortcode('slider_lists','testiflow_slider_func');
 function testiflow_add_testimonial_form_shortcode() {
     ob_start();
     ?>
-    <form method="post">
-        <div id="fields-container">
-        <label for="company_name">Company name:</label><br>
-        <input type="text" name="company_name" id="company_name" ><br><br>
-        <label for="company_website">Company website:</label><br>
-        <input type="text" name="company_website" id="company_website"><br><br>
-
-        <label for="testimonial_author">full name:</label><br>
-        <input type="text" name="testimonial_author" id="testimonial_author" ><br><br>
-        
-        <label for="testimonial_content">Testimonial:</label><br>
-        <textarea name="testimonial_content" id="testimonial_content" rows="5"></textarea><br><br>
-        
-        <div class="stars">
-            <input class="star" type="radio" id="star-1" name="rating" value="1"/>
-            <label class="star" for="star-1"></label>
-            <input class="star" type="radio" id="star-2" name="rating" value="2"/>
-            <label class="star" for="star-2"></label>
-            <input class="star" type="radio" id="star-3" name="rating" value="3"/>
-            <label class="star" for="star-3"></label>
-            <input class="star" type="radio" id="star-4" name="rating" value="4"/>
-            <label class="star" for="star-4"></label>
-            <input class="star" type="radio" id="star-5" name="rating" value="5"/>
-            <label class="star" for="star-5"></label>
-    </div>
-         
-             <?php wp_nonce_field( 'testimonial_form', 'mytestimonial_nonce' ); ?>
-
-             <input type="submit" name="submit_testimonial" value="Submit Testimonial">
-                </form>
+        <form method="post">
+            <div id="fields-container">
+                <label for="company_name"><?php _e( 'Company name:','testiflow' );?></label><br>
+                <input type="text" name="company_name" id="company_name" ><br><br>
+                <label for="company_website"><?php _e( 'Company website:','testiflow' );?></label><br>
+                <input type="text" name="company_website" id="company_website"><br><br>
+                <label for="title"><?php _e( 'Testimonial title:','testiflow' );?></label><br>
+                <input type="text" name="testimonial_title" id="testimonial_title"><br><br>
+                <label for="testimonial_author"><?php _e( 'full name:','testiflow' );?></label><br>
+                <input type="text" name="testimonial_author" id="testimonial_author" ><br><br>
+                <label for="testimonial_content">Testimonial:<?php _e( 'Testimonial:','testiflow' );?></label><br>
+                <textarea name="testimonial_content" id="testimonial_content" rows="5"></textarea><br><br>
+             <div class="stars">
+                <input class="star" type="radio" id="star-1" name="rating" value="1"/>
+                <label class="star" for="star-1"></label>
+                <input class="star" type="radio" id="star-2" name="rating" value="2"/>
+                <label class="star" for="star-2"></label>
+                <input class="star" type="radio" id="star-3" name="rating" value="3"/>
+                <label class="star" for="star-3"></label>
+                <input class="star" type="radio" id="star-4" name="rating" value="4"/>
+                <label class="star" for="star-4"></label>
+                <input class="star" type="radio" id="star-5" name="rating" value="5"/>
+                <label class="star" for="star-5"></label>
+             </div>
+                <?php wp_nonce_field( 'testimonial_form', 'mytestimonial_nonce' ); ?>
+                <input type="submit" name="submit_testimonial" value="Submit Testimonial">
+        </form>
                 <?php
-  
     $form = ob_get_clean();
     return $form;
 }
@@ -440,18 +391,20 @@ function testiflow_add_testimonial_form_submit(){
         if( ! wp_verify_nonce( $_POST['mytestimonial_nonce'],'testimonial_form' ) ) {
             return;
         };
-        $testimonial_author = sanitize_text_field($_POST['testimonial_author']);
-        $testimonial_content = sanitize_textarea_field($_POST['testimonial_content']);  
-        $company_name = sanitize_text_field($_POST['company_name']);
-        $company_website = sanitize_text_field($_POST['company_website']);
-        $rawRating = $_POST['rating'];
+        $testimonial_title = sanitize_text_field( wp_unslash($_POST['testimonial_title'])); 
+        $testimonial_author = sanitize_text_field( wp_unslash($_POST['testimonial_author'])); 
+        $testimonial_content = sanitize_textarea_field(wp_unslash($_POST['testimonial_content']));  
+        $company_name = sanitize_text_field( wp_unslash($_POST['company_name']));
+        $company_website = sanitize_text_field( wp_unslash($_POST['company_website']));
+        $rawRating = wp_unslash( $_POST['rating'] );
         
         $args = array(
-            'post_title' => $testimonial_author,
+            'post_title' => $testimonial_title,
             'post_content' => $testimonial_content,
             'post_status' => 'publish',
             'post_type' => 'testiflow',
             'meta_input' => array(
+                'info_name' => $testimonial_author,
                 'company_name' => $company_name,
                 'company_website' => $company_website,
                 'testimonial_rating' => $rawRating,
@@ -464,7 +417,6 @@ function testiflow_add_testimonial_form_submit(){
             die;
         }
     }
-  
 }
 add_action('init','testiflow_add_testimonial_form_submit'); 
 
@@ -474,9 +426,13 @@ add_action('init','testiflow_add_testimonial_form_submit');
  * @param array $columns Array of column.
  */
 function testiflow_add_testimonial_columns($columns) {
+    $columns['info_name']='name';
+    $columns['info_email']='email';
+    $columns['info_address']='address';
     $columns['company_name'] = 'Company Name';
     $columns['company_website'] = 'Company Website';
     $columns['testimonial_rating'] = 'Rating';
+    
     return $columns;
 }  
 add_filter('manage_testiflow_posts_columns', 'testiflow_add_testimonial_columns');
@@ -485,58 +441,96 @@ add_filter('manage_testiflow_posts_columns', 'testiflow_add_testimonial_columns'
  * Displays the custom column in list of testimonials.
  */
 function testiflow_add_data_testimonial_columns($column_name, $post_id) {
-    if ($column_name == 'company_name') {
-        $company_name = get_post_meta($post_id, 'company_name', true);
-        echo $company_name;
+    // print_r($column_name);
+    switch ($column_name) {
+        case 'company_name':
+            $company_name = get_post_meta($post_id, 'company_name', true);
+            echo $company_name;
+            break;
+        case 'company_website':
+            $company_website = get_post_meta($post_id, 'company_website', true);
+            echo $company_website;
+            break;
+        case 'testimonial_rating':
+            $rawRating = get_post_meta($post_id, 'testimonial_rating', true);
+            echo $rawRating;
+            break;
+        case 'info_name':
+            $name = get_post_meta($post_id, 'info_name', true);
+            echo $name;
+            break;
+        case 'info_email':
+            $email = get_post_meta($post_id, 'info_email', true);
+            echo $email;
+            break;
+        case 'info_address':
+            $address = get_post_meta($post_id, 'info_address', true);
+            echo $address;
+            break;
+        default:
+            // Handle default case here
+            break;
     }
-    if ($column_name == 'company_website') {
-        $company_website = get_post_meta($post_id, 'company_website', true);
-        echo $company_website;
-    }
-    if ($column_name == 'testimonial_rating') {
-        $rawRating = get_post_meta($post_id, 'testimonial_rating', true);
-        echo $rawRating;
-    }
-   
-
 }
 add_action('manage_testiflow_posts_custom_column', 'testiflow_add_data_testimonial_columns', 10, 2);
-
 
 /**
  * Shortcode to display the testimonials in diffrent view
  * @return array
  * @param array $atts shortcode attributes.
  */
-function testiflow_display_func( $atts ) {
+function testiflow_display_view_func( $atts ) {
     $atts = shortcode_atts( array(
         'view' => 'list', // default view is list
     ), $atts );
-
     $args = array(
         'post_type' =>  'testiflow',
         'post_status'=>'publish',
         'post_per_page'=>'4',
-
     );
-
     $get_user_email=get_option('post_data');
     $get_user_address=get_option('post_data');
     ob_start();
-    $query = new WP_Query( $args );
-    if ( $query->have_posts() ) {
-        if ( $atts['view'] === 'grid' ) {
-          include( 'templates/grid.php' );
-        } elseif( $atts['view'] === 'list' ) {
-          include( 'templates/list.php' ); 
-        }elseif( $atts['view'] === 'slider') {
-            include('templates/slider.php');
-        }
-    }
+    ?>
+    <div class="container">
+        <div class="row">
+        <?php
+            $query = new WP_Query( $args );
+            if ( $atts['view'] === 'slider' ){
+                ?>
+                    <div class="swiper mySwiper">
+                        <div class="swiper-wrapper">
+                <?php
+            }
+            if ( $query->have_posts() ) {
+                while ( $query->have_posts() ) {
+                    $query->the_post();
+                    if ( $atts['view'] === 'grid' ) {
+                        include( 'templates/grid.php' );
+                    } elseif( $atts['view'] === 'list' ) {
+                        include( 'templates/list.php' ); 
+                    }elseif( $atts['view'] === 'slider') {
+                        include('templates/slider.php');
+                    }
+                }
+                wp_reset_postdata();
+            }
+            if ( $atts['view'] === 'slider' ){
+                ?>
+                    </div>
+                        <div class="swiper-button-next"></div>
+                        <div class="swiper-button-prev"></div>
+                    </div>
+                <?php
+            }
+        ?>
+        </div>
+    </div>
+    <?php
     $display = ob_get_clean();
     return $display;
 }
-add_shortcode( 'testiflow_display_lists', 'testiflow_display_func' );
+add_shortcode( 'testiflow_view', 'testiflow_display_view_func' );
 
 
 
