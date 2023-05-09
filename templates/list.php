@@ -12,7 +12,6 @@
                     echo '';
                 } ?>
                 <br>
-
                 <?php  if($get_user_address['user_address'] == 'on'){
                         echo get_post_meta( get_the_ID(),"info_address", true );
                 }else{

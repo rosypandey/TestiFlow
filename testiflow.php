@@ -113,7 +113,10 @@ function testiflow_personal_info_metabox_callback( $post ) {
  /**
  * Save the metadata.
  */
-function testiflow_save_metadata( $post_id ) {
+function testiflow_save_metadata( $post_id ){
+    if(!isset($_POST['metabox_nonce'])){
+        return;
+    }
     if( ! wp_verify_nonce($_POST['metabox_nonce'],'metabox_form' ) ) {
         return;
     };
@@ -126,7 +129,6 @@ function testiflow_save_metadata( $post_id ) {
     if ( isset( $_POST['address'] ) ) {
         update_post_meta( $post_id, 'info_address', sanitize_text_field( wp_unslash( $_POST['address'] ) ) );
     }
-
 }
 add_action( 'save_post', 'testiflow_save_metadata' );
 
@@ -373,7 +375,7 @@ function testiflow_add_testimonial_form_shortcode() {
                 <label class="star" for="star-5"></label>
              </div>
                 <?php wp_nonce_field( 'testimonial_form', 'mytestimonial_nonce' ); ?>
-                <input type="submit" name="submit_testimonial" value="Submit Testimonial">
+                <input type="submit" name="testiflow_submit" value="Submit Testimonial">
         </form>
                 <?php
     $form = ob_get_clean();
@@ -387,7 +389,7 @@ add_shortcode('testiflow_display_form', 'testiflow_add_testimonial_form_shortcod
  */
 
 function testiflow_add_testimonial_form_submit(){
-    if (isset($_POST['submit_testimonial'])) {
+    if (isset($_POST['testiflow_submit'])) {
         if( ! wp_verify_nonce( $_POST['mytestimonial_nonce'],'testimonial_form' ) ) {
             return;
         };
@@ -441,7 +443,6 @@ add_filter('manage_testiflow_posts_columns', 'testiflow_add_testimonial_columns'
  * Displays the custom column in list of testimonials.
  */
 function testiflow_add_data_testimonial_columns($column_name, $post_id) {
-    // print_r($column_name);
     switch ($column_name) {
         case 'company_name':
             $company_name = get_post_meta($post_id, 'company_name', true);
